@@ -1,4 +1,4 @@
-#  ToDo Pro Max
+#  ToDo List
 
 ##  Descripción
 
@@ -26,29 +26,10 @@ Permite organizar tareas diarias de forma práctica, ayudando a mejorar la produ
 * Flutter
 * Dart
 
-##  Instalación
-
-1. Clona el repositorio:
-
-```
-git clone https://github.com/tu-usuario/tu-repo.git
-```
-
-2. Entra al proyecto:
-
-```
-cd tu-repo
-```
-
-3. Ejecuta:
-
-```
-flutter run
-```
 
 ##  Autor
 
-* TMonserrath Leon Garcia
+* Monserrath Leon Garcia
 
 ##  Licencia
 
