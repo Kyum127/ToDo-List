@@ -11,61 +11,59 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'ToDo Pro Max',
+      title: 'Notas App',
       theme: ThemeData(
-        primarySwatch: Colors.deepPurple,
+        primarySwatch: Colors.cyan,
       ),
-      home: const TodoPage(),
+      home: const NotasPage(),
     );
   }
 }
 
-class Tarea {
+class Nota {
   String texto;
-  bool completada;
+  bool favorita;
 
-  Tarea(this.texto, {this.completada = false});
+  Nota(this.texto, {this.favorita = false});
 }
 
-class TodoPage extends StatefulWidget {
-  const TodoPage({super.key});
+class NotasPage extends StatefulWidget {
+  const NotasPage({super.key});
 
   @override
-  State<TodoPage> createState() => _TodoPageState();
+  State<NotasPage> createState() => _NotasPageState();
 }
 
-class _TodoPageState extends State<TodoPage> {
-  final List<Tarea> tareas = [];
+class _NotasPageState extends State<NotasPage> {
+  final List<Nota> notas = [];
   final TextEditingController controller = TextEditingController();
-  String filtro = "todas";
 
-  void agregarTarea() {
+  void agregarNota() {
     if (controller.text.trim().isEmpty) return;
 
     setState(() {
-      tareas.insert(0, Tarea(controller.text.trim()));
+      notas.insert(0, Nota(controller.text.trim()));
       controller.clear();
     });
   }
 
-  void eliminarTarea(Tarea tarea) {
+  void eliminarNota(Nota nota) {
     setState(() {
-      tareas.remove(tarea);
+      notas.remove(nota);
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Tarea eliminada 🗑️")),
+      const SnackBar(content: Text("Nota eliminada 🗑️")),
     );
   }
 
-  void editarTarea(Tarea tarea) {
-    final TextEditingController editController =
-        TextEditingController(text: tarea.texto);
+  void editarNota(Nota nota) {
+    final editController = TextEditingController(text: nota.texto);
 
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text("Editar tarea"),
+        title: const Text("Editar nota"),
         content: TextField(controller: editController),
         actions: [
           TextButton(
@@ -75,7 +73,7 @@ class _TodoPageState extends State<TodoPage> {
           ElevatedButton(
             onPressed: () {
               setState(() {
-                tarea.texto = editController.text;
+                nota.texto = editController.text;
               });
               Navigator.pop(context);
             },
@@ -86,49 +84,32 @@ class _TodoPageState extends State<TodoPage> {
     );
   }
 
-  List<Tarea> obtenerTareasFiltradas() {
-    if (filtro == "pendientes") {
-      return tareas.where((t) => !t.completada).toList();
-    } else if (filtro == "completadas") {
-      return tareas.where((t) => t.completada).toList();
-    }
-    return tareas;
-  }
-
-  int tareasPendientes() {
-    return tareas.where((t) => !t.completada).length;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final lista = obtenerTareasFiltradas();
-
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F2FF),
+      backgroundColor: const Color(0xFFEAF9FF),
       appBar: AppBar(
         elevation: 0,
-        title: const Text("✨ ToDo Pro Max"),
+        title: const Text("📝 Notas Rápidas"),
         centerTitle: true,
       ),
 
-      // BOTÓN FLOTANTE PRO
       floatingActionButton: FloatingActionButton(
-        onPressed: agregarTarea,
+        onPressed: agregarNota,
         child: const Icon(Icons.add),
       ),
 
       body: Column(
         children: [
-          // INPUT
           Padding(
             padding: const EdgeInsets.all(16),
             child: TextField(
               controller: controller,
               decoration: InputDecoration(
-                hintText: "Escribe una tarea...",
+                hintText: "Escribe una nota...",
                 filled: true,
                 fillColor: Colors.white,
-                prefixIcon: const Icon(Icons.task),
+                prefixIcon: const Icon(Icons.note),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
                   borderSide: BorderSide.none,
@@ -137,39 +118,18 @@ class _TodoPageState extends State<TodoPage> {
             ),
           ),
 
-          // FILTROS
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              filtroBtn("todas"),
-              filtroBtn("pendientes"),
-              filtroBtn("completadas"),
-            ],
-          ),
-
-          const SizedBox(height: 10),
-
-          // CONTADOR PRO
-          Text(
-            "Pendientes: ${tareasPendientes()}",
-            style: const TextStyle(fontSize: 16),
-          ),
-
-          const SizedBox(height: 10),
-
-          // LISTA
           Expanded(
-            child: lista.isEmpty
-                ? const Center(child: Text("No hay tareas 😴"))
+            child: notas.isEmpty
+                ? const Center(child: Text("No hay notas 😴"))
                 : ListView.builder(
-                    itemCount: lista.length,
+                    itemCount: notas.length,
                     itemBuilder: (context, index) {
-                      final tarea = lista[index];
+                      final nota = notas[index];
 
                       return Dismissible(
-                        key: Key(tarea.texto + index.toString()),
+                        key: Key(nota.texto + index.toString()),
                         direction: DismissDirection.endToStart,
-                        onDismissed: (_) => eliminarTarea(tarea),
+                        onDismissed: (_) => eliminarNota(nota),
                         background: Container(
                           alignment: Alignment.centerRight,
                           padding: const EdgeInsets.only(right: 20),
@@ -180,8 +140,8 @@ class _TodoPageState extends State<TodoPage> {
                           margin: const EdgeInsets.symmetric(
                               horizontal: 16, vertical: 6),
                           decoration: BoxDecoration(
-                            color: tarea.completada
-                                ? Colors.green[100]
+                            color: nota.favorita
+                                ? Colors.cyan[100]
                                 : Colors.white,
                             borderRadius: BorderRadius.circular(15),
                             boxShadow: [
@@ -192,36 +152,35 @@ class _TodoPageState extends State<TodoPage> {
                             ],
                           ),
                           child: ListTile(
-                            leading: Checkbox(
-                              value: tarea.completada,
-                              onChanged: (value) {
+                            title: Text(nota.texto),
+
+                            // FAVORITO ⭐
+                            leading: IconButton(
+                              icon: Icon(
+                                nota.favorita
+                                    ? Icons.star
+                                    : Icons.star_border,
+                                color: Colors.amber,
+                              ),
+                              onPressed: () {
                                 setState(() {
-                                  tarea.completada = value ?? false;
+                                  nota.favorita = !nota.favorita;
                                 });
                               },
                             ),
-                            title: Text(
-                              tarea.texto,
-                              style: TextStyle(
-                                decoration: tarea.completada
-                                    ? TextDecoration.lineThrough
-                                    : null,
-                              ),
-                            ),
 
-                            // EDITAR + ELIMINAR
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
                                   icon: const Icon(Icons.edit,
                                       color: Colors.blue),
-                                  onPressed: () => editarTarea(tarea),
+                                  onPressed: () => editarNota(nota),
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.delete,
                                       color: Colors.red),
-                                  onPressed: () => eliminarTarea(tarea),
+                                  onPressed: () => eliminarNota(nota),
                                 ),
                               ],
                             ),
@@ -232,31 +191,6 @@ class _TodoPageState extends State<TodoPage> {
                   ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget filtroBtn(String tipo) {
-    final activo = filtro == tipo;
-
-    return ElevatedButton(
-      style: ElevatedButton.styleFrom(
-        backgroundColor:
-            activo ? Colors.deepPurple : Colors.grey.shade300,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
-      onPressed: () {
-        setState(() {
-          filtro = tipo;
-        });
-      },
-      child: Text(
-        tipo.toUpperCase(),
-        style: TextStyle(
-          color: activo ? Colors.white : Colors.black,
-        ),
       ),
     );
   }
